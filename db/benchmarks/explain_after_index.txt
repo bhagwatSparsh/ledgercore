@@ -1,0 +1,47 @@
+                                                                                                QUERY PLAN                                                                                                
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Sort  (cost=243.75..244.57 rows=328 width=48) (actual time=0.363..0.379 rows=320 loops=1)
+   Sort Key: ledger_postings.amount_minor DESC
+   Sort Method: quicksort  Memory: 47kB
+   Buffers: shared hit=87 read=3
+   ->  Append  (cost=0.00..230.05 rows=328 width=48) (actual time=0.055..0.269 rows=320 loops=1)
+         Buffers: shared hit=84 read=3
+         ->  Seq Scan on ledger_postings_2026_04 ledger_postings_1  (cost=0.00..0.00 rows=1 width=48) (actual time=0.004..0.004 rows=0 loops=1)
+               Filter: (amount_minor > 1900000)
+         ->  Seq Scan on ledger_postings_2026_05 ledger_postings_2  (cost=0.00..0.00 rows=1 width=48) (actual time=0.001..0.001 rows=0 loops=1)
+               Filter: (amount_minor > 1900000)
+         ->  Bitmap Heap Scan on ledger_postings_2026_06 ledger_postings_3  (cost=6.44..78.91 rows=278 width=48) (actual time=0.050..0.188 rows=286 loops=1)
+               Recheck Cond: (amount_minor > 1900000)
+               Heap Blocks: exact=64
+               Buffers: shared hit=67 read=3
+               ->  Bitmap Index Scan on ledger_postings_2026_06_amount_minor_idx  (cost=0.00..6.37 rows=278 width=0) (actual time=0.039..0.039 rows=286 loops=1)
+                     Index Cond: (amount_minor > 1900000)
+                     Buffers: shared hit=3 read=3
+         ->  Bitmap Heap Scan on ledger_postings_2026_07 ledger_postings_4  (cost=4.61..126.41 rows=42 width=48) (actual time=0.010..0.028 rows=34 loops=1)
+               Recheck Cond: (amount_minor > 1900000)
+               Heap Blocks: exact=9
+               Buffers: shared hit=11
+               ->  Bitmap Index Scan on ledger_postings_2026_07_amount_minor_idx  (cost=0.00..4.60 rows=42 width=0) (actual time=0.008..0.008 rows=34 loops=1)
+                     Index Cond: (amount_minor > 1900000)
+                     Buffers: shared hit=2
+         ->  Index Scan Backward using ledger_postings_2026_08_amount_minor_idx on ledger_postings_2026_08 ledger_postings_5  (cost=0.29..8.31 rows=1 width=48) (actual time=0.007..0.007 rows=0 loops=1)
+               Index Cond: (amount_minor > 1900000)
+               Buffers: shared hit=2
+         ->  Index Scan Backward using ledger_postings_2026_09_amount_minor_idx on ledger_postings_2026_09 ledger_postings_6  (cost=0.29..8.31 rows=1 width=48) (actual time=0.006..0.006 rows=0 loops=1)
+               Index Cond: (amount_minor > 1900000)
+               Buffers: shared hit=2
+         ->  Index Scan Backward using ledger_postings_2026_10_amount_minor_idx on ledger_postings_2026_10 ledger_postings_7  (cost=0.29..6.47 rows=1 width=48) (actual time=0.004..0.004 rows=0 loops=1)
+               Index Cond: (amount_minor > 1900000)
+               Buffers: shared hit=2
+         ->  Seq Scan on ledger_postings_2026_11 ledger_postings_8  (cost=0.00..0.00 rows=1 width=48) (actual time=0.001..0.001 rows=0 loops=1)
+               Filter: (amount_minor > 1900000)
+         ->  Seq Scan on ledger_postings_2026_12 ledger_postings_9  (cost=0.00..0.00 rows=1 width=48) (actual time=0.003..0.003 rows=0 loops=1)
+               Filter: (amount_minor > 1900000)
+         ->  Seq Scan on ledger_postings_2027_01 ledger_postings_10  (cost=0.00..0.00 rows=1 width=48) (actual time=0.003..0.003 rows=0 loops=1)
+               Filter: (amount_minor > 1900000)
+ Planning:
+   Buffers: shared hit=1127 read=18
+ Planning Time: 2.617 ms
+ Execution Time: 0.495 ms
+(43 rows)
+

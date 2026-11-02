@@ -1,0 +1,50 @@
+                                                                             QUERY PLAN                                                                              
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Gather Merge  (cost=6971.44..7103.05 rows=1128 width=48) (actual time=14.508..15.360 rows=320 loops=1)
+   Workers Planned: 2
+   Workers Launched: 2
+   Buffers: shared hit=3902
+   ->  Sort  (cost=5971.42..5972.83 rows=564 width=48) (actual time=8.275..8.292 rows=107 loops=3)
+         Sort Key: ledger_postings.amount_minor DESC
+         Sort Method: quicksort  Memory: 47kB
+         Buffers: shared hit=3902
+         Worker 0:  Sort Method: quicksort  Memory: 25kB
+         Worker 1:  Sort Method: quicksort  Memory: 25kB
+         ->  Parallel Append  (cost=0.00..5945.64 rows=564 width=48) (actual time=4.258..8.174 rows=107 loops=3)
+               Buffers: shared hit=3830
+               ->  Parallel Seq Scan on ledger_postings_2026_10 ledger_postings_7  (cost=0.00..2338.19 rows=5 width=48) (actual time=7.920..7.921 rows=0 loops=1)
+                     Filter: (amount_minor > 1900000)
+                     Rows Removed by Filter: 109778
+                     Buffers: shared hit=1531
+               ->  Parallel Seq Scan on ledger_postings_2026_08 ledger_postings_5  (cost=0.00..1466.60 rows=4 width=48) (actual time=2.208..2.208 rows=0 loops=3)
+                     Filter: (amount_minor > 1900000)
+                     Rows Removed by Filter: 22966
+                     Buffers: shared hit=960
+               ->  Parallel Seq Scan on ledger_postings_2026_09 ledger_postings_6  (cost=0.00..1369.15 rows=4 width=48) (actual time=7.524..7.525 rows=0 loops=1)
+                     Filter: (amount_minor > 1900000)
+                     Rows Removed by Filter: 65708
+                     Buffers: shared hit=886
+               ->  Parallel Seq Scan on ledger_postings_2026_07 ledger_postings_4  (cost=0.00..589.85 rows=25 width=48) (actual time=0.004..1.594 rows=34 loops=1)
+                     Filter: (amount_minor > 1900000)
+                     Rows Removed by Filter: 27962
+                     Buffers: shared hit=384
+               ->  Parallel Seq Scan on ledger_postings_2026_06 ledger_postings_3  (cost=0.00..106.97 rows=164 width=48) (actual time=0.014..0.816 rows=286 loops=1)
+                     Filter: (amount_minor > 1900000)
+                     Rows Removed by Filter: 4878
+                     Buffers: shared hit=69
+               ->  Parallel Seq Scan on ledger_postings_2026_04 ledger_postings_1  (cost=0.00..14.41 rows=118 width=48) (actual time=0.000..0.000 rows=0 loops=1)
+                     Filter: (amount_minor > 1900000)
+               ->  Parallel Seq Scan on ledger_postings_2026_05 ledger_postings_2  (cost=0.00..14.41 rows=118 width=48) (actual time=0.000..0.000 rows=0 loops=1)
+                     Filter: (amount_minor > 1900000)
+               ->  Parallel Seq Scan on ledger_postings_2026_11 ledger_postings_8  (cost=0.00..14.41 rows=118 width=48) (actual time=0.000..0.000 rows=0 loops=1)
+                     Filter: (amount_minor > 1900000)
+               ->  Parallel Seq Scan on ledger_postings_2026_12 ledger_postings_9  (cost=0.00..14.41 rows=118 width=48) (actual time=0.000..0.000 rows=0 loops=1)
+                     Filter: (amount_minor > 1900000)
+               ->  Parallel Seq Scan on ledger_postings_2027_01 ledger_postings_10  (cost=0.00..14.41 rows=118 width=48) (actual time=0.001..0.001 rows=0 loops=1)
+                     Filter: (amount_minor > 1900000)
+ Planning:
+   Buffers: shared hit=1000
+ Planning Time: 1.711 ms
+ Execution Time: 15.470 ms
+(46 rows)
+

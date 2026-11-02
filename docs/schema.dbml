@@ -1,0 +1,166 @@
+// LedgerCore -- DBML schema for dbdiagram.io
+// Generated from db/migrations/001-021. Paste this into dbdiagram.io
+// (or import it directly: Import > DBML).
+
+Table users {
+  user_id uuid [pk]
+  full_name varchar
+  email varchar [unique]
+  phone varchar
+  password_hash text
+  kyc_status varchar
+  is_active boolean
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table roles {
+  role_id smallint [pk]
+  role_name varchar [unique]
+}
+
+Table user_roles {
+  user_id uuid [ref: > users.user_id]
+  role_id smallint [ref: > roles.role_id]
+  granted_at timestamp
+
+  indexes {
+    (user_id, role_id) [pk]
+  }
+}
+
+Table accounts {
+  account_id uuid [pk]
+  user_id uuid [ref: > users.user_id]
+  account_number varchar [unique]
+  account_type varchar
+  currency char
+  cached_balance_minor bigint
+  status varchar
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table account_limits {
+  account_id uuid [pk, ref: - accounts.account_id]
+  daily_limit_minor bigint
+  per_txn_limit_minor bigint
+  updated_at timestamp
+}
+
+Table journal_entries {
+  journal_id uuid [pk]
+  idempotency_key uuid [unique]
+  entry_type varchar
+  description text
+  initiated_by uuid [ref: > users.user_id]
+  status varchar
+  fx_rate_applied numeric
+  source_currency char
+  target_currency char
+  created_at timestamp
+}
+
+Table ledger_postings {
+  posting_id uuid
+  journal_id uuid [ref: > journal_entries.journal_id]
+  account_id uuid [ref: > accounts.account_id]
+  direction varchar
+  amount_minor bigint
+  currency char
+  created_at timestamp
+
+  indexes {
+    (posting_id, created_at) [pk]
+  }
+
+  Note: 'created_at is in the key only because this table is RANGE-partitioned by month -- not a natural attribute of a posting.'
+}
+
+Table balance_snapshots {
+  account_id uuid [ref: > accounts.account_id]
+  snapshot_date date
+  closing_balance_minor bigint
+  last_posting_id uuid
+  created_at timestamp
+
+  indexes {
+    (account_id, snapshot_date) [pk]
+  }
+}
+
+Table idempotency_keys {
+  idempotency_key uuid [pk]
+  user_id uuid [ref: > users.user_id]
+  request_hash text
+  response_body json
+  status varchar
+  created_at timestamp
+  expires_at timestamp
+}
+
+Table saved_beneficiaries {
+  beneficiary_id uuid [pk]
+  user_id uuid [ref: > users.user_id]
+  beneficiary_account_id uuid [ref: > accounts.account_id]
+  nickname varchar
+  transfer_limit_minor bigint
+  added_at timestamp
+}
+
+Table fx_rates {
+  base_currency char
+  quote_currency char
+  rate numeric
+  as_of timestamp
+
+  indexes {
+    (base_currency, quote_currency, as_of) [pk]
+  }
+
+  Note: 'No FK -- looked up by currency code at transfer time, not joined.'
+}
+
+Table fraud_flags {
+  flag_id uuid [pk]
+  account_id uuid [ref: > accounts.account_id]
+  rule_name varchar
+  detail json
+  severity varchar
+  resolved boolean
+  created_at timestamp
+}
+
+Table outbox_events {
+  event_id uuid [pk]
+  aggregate_type varchar
+  aggregate_id uuid
+  event_type varchar
+  payload json
+  published boolean
+  published_at timestamp
+  created_at timestamp
+
+  Note: 'No FK -- references its journal loosely by UUID so the outbox pattern still works if this is ever split onto its own service.'
+}
+
+Table audit_logs {
+  audit_id uuid [pk]
+  actor_user_id uuid [ref: > users.user_id]
+  action varchar
+  table_name varchar
+  record_id uuid
+  old_value json
+  new_value json
+  created_at timestamp
+}
+
+Table reconciliation_logs {
+  recon_id uuid [pk]
+  account_id uuid [ref: > accounts.account_id]
+  run_date date
+  expected_balance_minor bigint
+  actual_balance_minor bigint
+  status varchar
+  created_at timestamp
+}

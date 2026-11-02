@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Open LedgerCore schema in dbdiagram.io</title>
+<style>
+  :root{ --bg:#0f1310; --surface:#171d16; --fg:#e7ece5; --muted:#93a399; --accent:#6fc7a2; --border:#2a3327; }
+  *{box-sizing:border-box;}
+  body{ margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center; background:var(--bg); color:var(--fg); font-family:Inter,system-ui,sans-serif; padding:24px; }
+  .card{ max-width:640px; width:100%; background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:32px; }
+  h1{ font-size:21px; margin:0 0 6px; }
+  p{ color:var(--muted); font-size:14.5px; line-height:1.6; margin:0 0 20px; }
+  button{ font-family:inherit; font-size:15px; font-weight:600; color:#0f1310; background:var(--accent); border:none; border-radius:8px; padding:13px 22px; cursor:pointer; width:100%; }
+  button:hover{ opacity:.92; }
+  button:disabled{ opacity:.6; cursor:default; }
+  .status{ font-size:13px; color:var(--accent); margin-top:12px; min-height:18px; }
+  details{ margin-top:22px; }
+  summary{ cursor:pointer; color:var(--muted); font-size:13px; }
+  textarea{ width:100%; height:200px; margin-top:10px; background:#0c0f0b; color:var(--fg); border:1px solid var(--border); border-radius:8px; padding:12px; font-family:ui-monospace,monospace; font-size:12px; resize:vertical; }
+  .steps{ margin-top:18px; padding-left:20px; color:var(--muted); font-size:13.5px; line-height:1.9; }
+</style>
+</head>
+<body>
+  <div class="card">
+    <h1>LedgerCore &rarr; dbdiagram.io</h1>
+    <p>Copies the DBML schema to your clipboard, then opens dbdiagram.io in a new tab. Paste (Ctrl+V) into the editor there and the diagram builds itself.</p>
+    <button id="go">Copy schema &amp; open dbdiagram.io</button>
+    <div class="status" id="status"></div>
+    <ol class="steps">
+      <li>Click the button above</li>
+      <li>On the dbdiagram.io tab that opens, click into the editor pane (left side)</li>
+      <li>Select all and paste (Ctrl+A, then Ctrl+V) to replace the sample schema</li>
+      <li>The ER diagram renders on the right automatically</li>
+    </ol>
+    <details>
+      <summary>View / copy the DBML manually</summary>
+      <textarea id="dbml" readonly></textarea>
+    </details>
+  </div>
+
+<script>
+const dbml = `// LedgerCore -- DBML schema for dbdiagram.io
+// Generated from db/migrations/001-021.
+
+Table users {
+  user_id uuid [pk]
+  full_name varchar
+  email varchar [unique]
+  phone varchar
+  password_hash text
+  kyc_status varchar
+  is_active boolean
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table roles {
+  role_id smallint [pk]
+  role_name varchar [unique]
+}
+
+Table user_roles {
+  user_id uuid [ref: > users.user_id]
+  role_id smallint [ref: > roles.role_id]
+  granted_at timestamp
+
+  indexes {
+    (user_id, role_id) [pk]
+  }
+}
+
+Table accounts {
+  account_id uuid [pk]
+  user_id uuid [ref: > users.user_id]
+  account_number varchar [unique]
+  account_type varchar
+  currency char
+  cached_balance_minor bigint
+  status varchar
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table account_limits {
+  account_id uuid [pk, ref: - accounts.account_id]
+  daily_limit_minor bigint
+  per_txn_limit_minor bigint
+  updated_at timestamp
+}
+
+Table journal_entries {
+  journal_id uuid [pk]
+  idempotency_key uuid [unique]
+  entry_type varchar
+  description text
+  initiated_by uuid [ref: > users.user_id]
+  status varchar
+  fx_rate_applied numeric
+  source_currency char
+  target_currency char
+  created_at timestamp
+}
+
+Table ledger_postings {
+  posting_id uuid
+  journal_id uuid [ref: > journal_entries.journal_id]
+  account_id uuid [ref: > accounts.account_id]
+  direction varchar
+  amount_minor bigint
+  currency char
+  created_at timestamp
+
+  indexes {
+    (posting_id, created_at) [pk]
+  }
+
+  Note: 'created_at is in the key only because this table is RANGE-partitioned by month -- not a natural attribute of a posting.'
+}
+
+Table balance_snapshots {
+  account_id uuid [ref: > accounts.account_id]
+  snapshot_date date
+  closing_balance_minor bigint
+  last_posting_id uuid
+  created_at timestamp
+
+  indexes {
+    (account_id, snapshot_date) [pk]
+  }
+}
+
+Table idempotency_keys {
+  idempotency_key uuid [pk]
+  user_id uuid [ref: > users.user_id]
+  request_hash text
+  response_body json
+  status varchar
+  created_at timestamp
+  expires_at timestamp
+}
+
+Table saved_beneficiaries {
+  beneficiary_id uuid [pk]
+  user_id uuid [ref: > users.user_id]
+  beneficiary_account_id uuid [ref: > accounts.account_id]
+  nickname varchar
+  transfer_limit_minor bigint
+  added_at timestamp
+}
+
+Table fx_rates {
+  base_currency char
+  quote_currency char
+  rate numeric
+  as_of timestamp
+
+  indexes {
+    (base_currency, quote_currency, as_of) [pk]
+  }
+
+  Note: 'No FK -- looked up by currency code at transfer time, not joined.'
+}
+
+Table fraud_flags {
+  flag_id uuid [pk]
+  account_id uuid [ref: > accounts.account_id]
+  rule_name varchar
+  detail json
+  severity varchar
+  resolved boolean
+  created_at timestamp
+}
+
+Table outbox_events {
+  event_id uuid [pk]
+  aggregate_type varchar
+  aggregate_id uuid
+  event_type varchar
+  payload json
+  published boolean
+  published_at timestamp
+  created_at timestamp
+
+  Note: 'No FK -- references its journal loosely by UUID so the outbox pattern still works if this is ever split onto its own service.'
+}
+
+Table audit_logs {
+  audit_id uuid [pk]
+  actor_user_id uuid [ref: > users.user_id]
+  action varchar
+  table_name varchar
+  record_id uuid
+  old_value json
+  new_value json
+  created_at timestamp
+}
+
+Table reconciliation_logs {
+  recon_id uuid [pk]
+  account_id uuid [ref: > accounts.account_id]
+  run_date date
+  expected_balance_minor bigint
+  actual_balance_minor bigint
+  status varchar
+  created_at timestamp
+}
+`;
+
+document.getElementById('dbml').value = dbml;
+
+document.getElementById('go').addEventListener('click', async function(){
+  const statusEl = document.getElementById('status');
+  try {
+    await navigator.clipboard.writeText(dbml);
+    statusEl.textContent = 'Copied to clipboard. Opening dbdiagram.io...';
+  } catch (e) {
+    const ta = document.getElementById('dbml');
+    ta.removeAttribute('readonly');
+    ta.focus(); ta.select();
+    try { document.execCommand('copy'); statusEl.textContent = 'Copied to clipboard. Opening dbdiagram.io...'; }
+    catch (e2) { statusEl.textContent = 'Could not auto-copy -- use "View / copy the DBML manually" below.'; }
+    ta.setAttribute('readonly','true');
+  }
+  window.open('https://dbdiagram.io/d', '_blank');
+});
+</script>
+</body>
+</html>

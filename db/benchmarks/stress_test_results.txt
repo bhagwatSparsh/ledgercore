@@ -1,0 +1,18 @@
+Setting up 20 freshly-funded accounts ...
+Launching 100 concurrent worker threads for 20s, all hammering the same 20 accounts ...
+
+Completed in 20.4s.
+  Successful transfers:          14342
+  Rejected (insufficient funds):  0 (expected -- small pool, small balances)
+  Deadlocks detected:              0  <-- should be ZERO
+  Other/unexpected errors:         0  <-- should be ZERO
+  Throughput:                      703.8 successful transfers/sec
+
+Verifying money conservation and reconciliation ...
+  Total in pool now:   20000000
+  Total in pool before: 20000000
+  Conserved exactly:    True
+  Accounts gone negative: 0  <-- should be ZERO
+  Accounts with ledger drift: 0  <-- should be ZERO
+
+PASS: stress test succeeded.

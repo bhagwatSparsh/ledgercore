@@ -1,0 +1,23 @@
+{
+  "name": "ledgercore-worker",
+  "version": "1.0.0",
+  "description": "LedgerCore background worker -- outbox dispatch, reconciliation, fraud scan, partition maintenance",
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "node-cron": "^3.0.3",
+    "pg": "^8.12.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.2",
+    "@types/node-cron": "^3.0.11",
+    "@types/pg": "^8.11.6",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.4.5"
+  }
+}
