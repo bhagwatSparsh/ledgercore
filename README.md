@@ -4,6 +4,21 @@
 
 > Originally scoped from a brainstorm on resume-worthy DBMS project ideas, then taken well past that scope: multi-currency FX, fraud detection, an outbox-pattern notification system, Redis caching, a full React admin console, a deadlock-free concurrency stress test with captured proof, and a Dockerized one-command deployment.
 
+## Demo
+
+See it working in about two minutes (needs [Docker Desktop](https://www.docker.com/products/docker-desktop/) and Python 3):
+
+```
+docker compose up --build          # starts Postgres, Redis, API, worker and dashboard
+python3 demo_feature_tour.py       # in a second terminal
+```
+
+The tour script calls the real HTTP API (the same endpoints the dashboard uses) and prints a narrated transcript as it goes: accounts, transfers, FX conversion, idempotent retries, fraud flags and admin data. When it finishes, open **http://localhost:8080** and log in with the demo account printed at the top of the output; everything it created is already there to click through.
+
+For a step-by-step walkthrough that labels each database operation (insert, update, delete and the rest) as it runs, use `python3 faculty_live_demo.py`.
+
+The full database design is shown in the [ER diagram](docs/er_diagram.png).
+
 ## Why this is a hard problem
 
 A ledger isn't just a table of balances. Money needs to:
