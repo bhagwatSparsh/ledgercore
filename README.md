@@ -1,5 +1,13 @@
 # LedgerCore
 
+[![CI](https://github.com/bhagwatSparsh/ledgercore/actions/workflows/ci.yml/badge.svg)](https://github.com/bhagwatSparsh/ledgercore/actions/workflows/ci.yml)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-336791?logo=postgresql&logoColor=white)
+![Node.js](https://img.shields.io/badge/Node.js-20-339933?logo=nodedotjs&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white)
+![React](https://img.shields.io/badge/React-61DAFB?logo=react&logoColor=black)
+![Redis](https://img.shields.io/badge/Redis-7-DC382D?logo=redis&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white)
+
 **A concurrency-controlled, double-entry transactional ledger** — the engine that sits underneath any product that moves money between accounts (a bank, a wallet, a marketplace payout system). This is a **database-first** project: the hard, interesting work is almost entirely in PostgreSQL (schema design, concurrency control, Row-Level Security, triggers, partitioning); the Node.js API and React dashboard exist to prove the database design actually works end to end, under real concurrent load, not just in isolated SQL snippets.
 
 > Originally scoped from a brainstorm on resume-worthy DBMS project ideas, then taken well past that scope: multi-currency FX, fraud detection, an outbox-pattern notification system, Redis caching, a full React admin console, a deadlock-free concurrency stress test with captured proof, and a Dockerized one-command deployment.
@@ -198,3 +206,7 @@ docker-compose.yml
 | Admin | `GET /admin/fraud-flags`, `/admin/reconciliation`, `/admin/settlement`, `/admin/audit-logs` (admin/auditor only) |
 
 Full request/response shapes are in the route files under `api/src/routes/` — each one is short and commented with *why*, not just *what*.
+
+## Author
+
+**Sparsh Bhagwat** · [GitHub](https://github.com/bhagwatSparsh)
