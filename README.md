@@ -27,6 +27,13 @@ For a step-by-step walkthrough that labels each database operation (insert, upda
 
 The full database design is shown in the [ER diagram](docs/er_diagram.png).
 
+## Screenshots
+
+<table>
+<tr><td align="center" width="50%"><img src="docs/screenshots/accounts-dashboard.png" alt="Your accounts: every balance is backed by the double-entry ledger"><br><sub><b>Your accounts: every balance is backed by the double-entry ledger</b></sub></td><td align="center" width="50%"><img src="docs/screenshots/account-statement.png" alt="Account statement with running balance, served from PostgreSQL, with a live feed"><br><sub><b>Account statement with running balance, served from PostgreSQL, with a live feed</b></sub></td></tr>
+<tr><td align="center" width="50%"><img src="docs/screenshots/beneficiaries.png" alt="Beneficiaries: saved recipients with optional transfer limits"><br><sub><b>Beneficiaries: saved recipients with optional transfer limits</b></sub></td><td align="center" width="50%"><img src="docs/screenshots/admin-console.png" alt="Admin console: fraud flags, reconciliation drift and daily settlement volume"><br><sub><b>Admin console: fraud flags, reconciliation drift and daily settlement volume</b></sub></td></tr>
+</table>
+
 ## Why this is a hard problem
 
 A ledger isn't just a table of balances. Money needs to:
@@ -39,6 +46,8 @@ A ledger isn't just a table of balances. Money needs to:
 Every one of those claims below is backed by something you can run and see fail if the guarantee were removed — not just asserted.
 
 ## Architecture
+
+![LedgerCore architecture](docs/screenshots/architecture.png)
 
 ```
                          ┌─────────────────┐
